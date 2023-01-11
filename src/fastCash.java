@@ -1,14 +1,13 @@
-import java.lang.reflect.Constructor;
-
 import javax.swing.*;
+import java.sql.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class transactions extends JFrame implements ActionListener {
+public class fastCash extends JFrame implements ActionListener {
     JButton deposit, cashWith, fastCash, balance, exit;
     String pin;
 
-    transactions(String pin) {
+    fastCash(String pin) {
         this.pin = pin;
         setLayout(null);
         JLabel heading = new JLabel("Please select from the options below");
@@ -17,28 +16,28 @@ public class transactions extends JFrame implements ActionListener {
         heading.setForeground(Color.white);
         heading.setFont(new Font("Times New Roman", Font.BOLD, 19));
 
-        deposit = new JButton("DEPOSIT");
+        deposit = new JButton("$5");
         deposit.setBounds(150, 90, 200, 30);
         deposit.setBackground(Color.WHITE);
         deposit.setForeground(Color.BLACK);
         deposit.addActionListener(this);
         add(deposit);
 
-        cashWith = new JButton("CASH WITHDRAWAL");
+        cashWith = new JButton("$10");
         cashWith.setBounds(450, 90, 200, 30);
         cashWith.setBackground(Color.WHITE);
         cashWith.setForeground(Color.BLACK);
         cashWith.addActionListener(this);
         add(cashWith);
 
-        fastCash = new JButton("FAST CASH");
+        fastCash = new JButton("$20");
         fastCash.setBounds(150, 150, 200, 30);
         fastCash.setBackground(Color.WHITE);
         fastCash.setForeground(Color.BLACK);
         fastCash.addActionListener(this);
         add(fastCash);
 
-        balance = new JButton("BALANCE");
+        balance = new JButton("$50");
         balance.setBounds(450, 150, 200, 30);
         balance.setBackground(Color.WHITE);
         balance.setForeground(Color.BLACK);
@@ -60,18 +59,42 @@ public class transactions extends JFrame implements ActionListener {
     }
 
     public void actionPerformed(ActionEvent ae) {
+        int amt = 0;
         if (ae.getSource() == exit) {
             System.exit(1);
         } else if (ae.getSource() == deposit) {
-            setVisible(false);
-            new depositmoney(pin).setVisible(true);
+            amt = 5;
         } else if (ae.getSource() == cashWith) {
-            setVisible(false);
-            new withdrawMoney(pin).setVisible(true);
+            amt = 10;
+        } else if (ae.getSource() == fastCash) {
+            amt = 20;
+        } else if (ae.getSource() == balance) {
+            amt = 50;
+        }
+        String val = Integer.toString(amt);
+        conn con = new conn();
+        try {
+            int total = 0;
+            String query = "select * from bank where pin = '" + pin + "'";
+            ResultSet rs = con.s.executeQuery(query);
+            while (rs.next()) {
+                if (rs.getString("type").equals("Deposit")) {
+                    total += Integer.parseInt(rs.getString("amount"));
+                } else if (rs.getString("type").equals("Withdraw")) {
+                    total -= Integer.parseInt(rs.getString("amount"));
+                }
+                if (ae.getSource() != exit && total < amt) {
+                    JOptionPane.showMessageDialog(null, "Insufficient Funds");
+                    return;
+                }
+                // HERE MAKE THE NEW QUERY AND ADD TO THE DB
+            }
+        } catch (Exception e) {
+
         }
     }
 
     public static void main(String[] args) {
-        new transactions("");
+        new fastCash("");
     }
 }
