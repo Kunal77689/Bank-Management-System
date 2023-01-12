@@ -1,5 +1,5 @@
 import java.lang.reflect.Constructor;
-
+import java.sql.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -68,6 +68,26 @@ public class transactions extends JFrame implements ActionListener {
         } else if (ae.getSource() == cashWith) {
             setVisible(false);
             new withdrawMoney(pin).setVisible(true);
+        } else if (ae.getSource() == fastCash) {
+            setVisible(false);
+            new fastCash(pin).setVisible(true);
+        } else if (ae.getSource() == balance) {
+            conn con = new conn();
+            try {
+                int total = 0;
+                String query = "select * from bank where pin = '" + pin + "'";
+                ResultSet rs = con.s.executeQuery(query);
+                while (rs.next()) {
+                    if (rs.getString("type").equals("Deposit")) {
+                        total += Integer.parseInt(rs.getString("amount"));
+                    } else if (rs.getString("type").equals("Withdraw")) {
+                        total -= Integer.parseInt(rs.getString("amount"));
+                    }
+                }
+                JOptionPane.showMessageDialog(null, "$" + total + " present in your account");
+            } catch (Exception e) {
+                System.out.println(e);
+            }
         }
     }
 

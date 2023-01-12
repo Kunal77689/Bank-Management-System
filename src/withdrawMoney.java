@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.Date;
+import java.sql.*;
 
 public class withdrawMoney extends JFrame implements ActionListener {
     JButton submit, exit;
@@ -57,6 +58,22 @@ public class withdrawMoney extends JFrame implements ActionListener {
                     conn con = new conn();
                     String query = "insert into bank values('" + pin + "', '" + date + "', 'Withdraw', '" + amount
                             + "')";
+
+                    int total = 0;
+                    String query1 = "select * from bank where pin = '" + pin + "'";
+                    ResultSet rs = con.s.executeQuery(query1);
+                    while (rs.next()) {
+                        if (rs.getString("type").equals("Deposit")) {
+                            total += Integer.parseInt(rs.getString("amount"));
+                        } else if (rs.getString("type").equals("Withdraw")) {
+                            total -= Integer.parseInt(rs.getString("amount"));
+                        }
+                    }
+                    if (ae.getSource() != exit && total < Integer.parseInt(amount)) {
+                        JOptionPane.showMessageDialog(null, "Insufficient Funds");
+                        return;
+                    }
+
                     con.s.executeUpdate(query);
                     JOptionPane.showMessageDialog(null, "$" + amount + " was withdrawn successfully");
                     setVisible(false);

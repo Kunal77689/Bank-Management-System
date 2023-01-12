@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.sql.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Date;
 
 public class fastCash extends JFrame implements ActionListener {
     JButton deposit, cashWith, fastCash, balance, exit;
@@ -61,7 +62,9 @@ public class fastCash extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent ae) {
         int amt = 0;
         if (ae.getSource() == exit) {
-            System.exit(1);
+            setVisible(false);
+            new transactions(pin).setVisible(true);
+            return;
         } else if (ae.getSource() == deposit) {
             amt = 5;
         } else if (ae.getSource() == cashWith) {
@@ -83,14 +86,20 @@ public class fastCash extends JFrame implements ActionListener {
                 } else if (rs.getString("type").equals("Withdraw")) {
                     total -= Integer.parseInt(rs.getString("amount"));
                 }
-                if (ae.getSource() != exit && total < amt) {
-                    JOptionPane.showMessageDialog(null, "Insufficient Funds");
-                    return;
-                }
-                // HERE MAKE THE NEW QUERY AND ADD TO THE DB
             }
+            if (ae.getSource() != exit && total < amt) {
+                JOptionPane.showMessageDialog(null, "Insufficient Funds");
+                return;
+            }
+            Date date = new Date();
+            String query1 = "insert into bank values('" + pin + "', '" + date + "', 'Withdraw', '" + val
+                    + "')";
+            con.s.executeUpdate(query1);
+            JOptionPane.showMessageDialog(null, "$" + val + " debited successfully");
+            setVisible(false);
+            new transactions(pin).setVisible(true);
         } catch (Exception e) {
-
+            System.out.println(e);
         }
     }
 

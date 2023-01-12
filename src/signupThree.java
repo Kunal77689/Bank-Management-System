@@ -178,6 +178,9 @@ public class signupThree extends JFrame implements ActionListener {
             } catch (Exception e) {
                 System.out.println(e);
             }
+            setVisible(false);
+            new depositmoney(pin).setVisible(true);
+            JOptionPane.showMessageDialog(null, "You have to put some money to activate your account");
         } else if (ae.getSource() == cancel) {
 
         }
